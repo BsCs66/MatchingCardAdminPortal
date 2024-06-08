@@ -64,7 +64,7 @@ export function Toast(props: Props) {
                 }
             }, 1000);
         }
-    }, [props.show]);
+    }, [props]);
 
     const color = useCallback((type: AlertType) => {
         switch(type) {
