@@ -23,7 +23,7 @@ export default function LoginPage() {
         } finally {
             setIsValidating(false)
         }
-    }, []);
+    }, [navigate, alert]);
 
     return (
         <>

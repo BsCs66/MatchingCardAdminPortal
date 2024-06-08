@@ -44,7 +44,7 @@ export default function Router() {
         }
         isObserveOnInitial = true;
       });
-    }, []);
+    }, [navigate]);
 
     return (
         <Routes>
