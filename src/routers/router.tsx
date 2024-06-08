@@ -1,4 +1,4 @@
-import { Route, NonIndexRouteObject, Routes, useNavigate } from "react-router-dom";
+import { Route, NonIndexRouteObject, Routes, useNavigate, useLocation } from "react-router-dom";
 import LoginPage from "../routes/login";
 import HomePage from "../routes";
 import NotFoundPage from "../routes/not-found";
@@ -29,22 +29,22 @@ export function Page(props: {element: React.ReactNode, title?: string}) {
 
 export default function Router() {
     const navigate = useNavigate();
+    const location = useLocation();
     useMemo(async () => {
-      let isObserveOnInitial = false;
-      observeAuth(async (user) => {
-        console.log('user', user)
-        if (!user) {
-          console.log(1)
-          if (!isObserveOnInitial) {
-            console.log(2)
-            navigate('/login')
+        let isObserveOnInitial = false;
+        return observeAuth(async (user) => {
+            if (!user) {
+                if (!isObserveOnInitial) {
+                    navigate('/login')
+                    isObserveOnInitial = true;
+                }
+                return;
+            } else if (location.pathname.startsWith('/login')) {
+                navigate('');
+            }
             isObserveOnInitial = true;
-          }
-          return;
-        }
-        isObserveOnInitial = true;
-      });
-    }, [navigate]);
+        });
+    }, [navigate, location]);
 
     return (
         <Routes>
