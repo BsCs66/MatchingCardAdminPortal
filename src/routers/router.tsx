@@ -4,6 +4,7 @@ import HomePage from "../routes";
 import NotFoundPage from "../routes/not-found";
 import { useMemo } from "react";
 import { observeAuth } from "../composables/authen";
+import ManagementPage from "../routes/management";
 
 interface RouterObject extends NonIndexRouteObject {
     title?: string
@@ -20,10 +21,15 @@ const routers: RouterObject[] = [
         path: '/',
         element: <HomePage />,
     },
+    {
+        title: 'Management',
+        path: '/management',
+        element: <ManagementPage />,
+    },
 ]
 
 export function Page(props: {element: React.ReactNode, title?: string}) {
-    document.title = `Matching Card | ${props.title || 'Not Found'}`;
+    document.title = `Match Word | ${props.title || 'Not Found'}`;
     return <>{props.element}</>;
 }
 
