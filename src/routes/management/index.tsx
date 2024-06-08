@@ -130,7 +130,7 @@ export default function ManagementPage() {
         <>
             <Topbar />
             <div className="p-4">
-                <button onClick={() => setOpenModal('add')} className="w-full text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-2 py-1 text-center">Add</button>
+                <button onClick={() => {setDataManagement(initialDataManagement()); setOpenModal('add')}} className="w-full text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-2 py-1 text-center">Add</button>
                 <Table
                     columns={columns}
                     data={data}
