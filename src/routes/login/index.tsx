@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState } from "react"
+import { useCallback, useContext, useEffect, useState } from "react"
 import { loginFirebase } from "../../composables/authen";
 import { Spinner } from "../../components/shared/spinner";
 import GlobalContext from "../../context/context";
@@ -11,12 +11,21 @@ export default function LoginPage() {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [isValidating, setIsValidating] = useState(false)
+    const [isValidating, setIsValidating] = useState(false);
+
+    useEffect(() => {
+        const uid = localStorage.getItem('uid');
+        if (uid) {
+            navigate('/');
+        }
+    }, [navigate])
 
     const login = useCallback(async (email: string, password: string) => {
         setIsValidating(true)
         try {
-            await loginFirebase(email, password);
+            const res = await loginFirebase(email, password);
+            localStorage.setItem('uid', res);
+            alert({type: AlertType.Success, message: 'Login successfully!'})
             navigate('/');
         } catch (error) {
             alert({type: AlertType.Error, message: 'Email or password is incorrect!'})
