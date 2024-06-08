@@ -6,8 +6,8 @@ import { deleteFile } from './storage';
 
 const firestore = initializeFirestore(app, { ignoreUndefinedProperties: true });
 
-const requestCollection = 'Test'
-const dataCollection = 'DataTest'
+const requestCollection = 'RequestData'
+const dataCollection = 'AppData'
 
 export async function getRequest() {
     const snapshot = await getDocs(query(collection(firestore, requestCollection).withConverter(converter<Data>())));
