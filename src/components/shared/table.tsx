@@ -1,12 +1,14 @@
-import { Data } from "../../model/data";
-
-export type Props = {
-    columns: string[];
-    data: Data[];
-    // action: (id: string) => void,
+type ColumnProps<T> = {
+    header: React.ReactNode;
+    column: (data: T, index: number) => React.ReactNode;
 }
 
-export default function Table({ columns, data }: Props) {
+export type Props<T> = {
+    columns: ColumnProps<T>[];
+    data: T[];
+}
+
+export default function Table<T>({ columns, data }: Props<T>) {
     return (
         <div className="relative overflow-x-auto">
             <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
@@ -14,7 +16,7 @@ export default function Table({ columns, data }: Props) {
                     <tr>
                         {columns.map((column, index) => (
                             <th key={index} scope="col" className="px-6 py-3">
-                                {column}
+                                {column.header}
                             </th>
                         ))}
                     </tr>
@@ -22,13 +24,11 @@ export default function Table({ columns, data }: Props) {
                 <tbody>
                     {data.map((data, index) => (
                         <tr key={index} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                            <img src={data.image} className="w-6 h-6" />
-                            <td className="px-6 py-4">
-                                {data.word}
-                            </td>
-                            <td className="px-6 py-4">
-                                {data.meaning}
-                            </td>
+                            {columns.map((column, index) => (
+                                <td className="px-6 py-4" key={index}>
+                                    {column.column(data, index)}
+                                </td>
+                            ))}
                         </tr>
                     ))}
                 </tbody>
