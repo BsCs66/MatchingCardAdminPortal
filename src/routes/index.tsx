@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Topbar from "../components/layout/topbar";
 import Table from "../components/shared/table";
-import { Data } from "../model/data";
+import { Data, Level } from "../model/data";
 import { getRequest, importRequestData, updateRequestStatus } from "../composables/firestore";
 import { getFile } from "../composables/storage";
 
@@ -36,7 +36,13 @@ export default function HomePage() {
                         <button onClick={() => updateData(data._id, 'rejected')} className="w-full text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-2 py-1 text-center">Reject</button>
                     </div>
                 )
-                : (data.status === 'approved' && <button onClick={() => importData(data._id)} className="w-full text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-2 py-1 text-center">Import</button>)
+                : (data.status === 'approved' && (
+                    <div className="flex gap-2">
+                        <button onClick={() => importData(data._id, Level.Easy)} className="w-full text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-2 py-1 text-center">ง่าย</button>
+                        <button onClick={() => importData(data._id, Level.Medium)} className="w-full text-black bg-yellow-200 hover:bg-yellow-300 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-2 py-1 text-center">ปานกลาง</button>
+                        <button onClick={() => importData(data._id, Level.Hard)} className="w-full text-white bg-pink-700 hover:bg-pink-800 focus:ring-4 focus:outline-none focus:ring-pink-300 font-medium rounded-lg text-sm px-2 py-1 text-center">ยาก</button>
+                    </div>
+                ))
         },
     ]
     const [data, setData] = useState<Data[]>([]);
@@ -59,8 +65,8 @@ export default function HomePage() {
         await fetchData();
     }, [fetchData])
 
-    const importData = useCallback(async (id: string) => {
-        await importRequestData(id)
+    const importData = useCallback(async (id: string, level: Level) => {
+        await importRequestData(id, level)
         await fetchData();
     }, [fetchData])
 

@@ -1,3 +1,9 @@
+export enum Level {
+    Easy = 'easy',
+    Medium = 'medium',
+    Hard = 'hard',
+}
+
 export type Data = {
     _id: string;
     id: string;
@@ -9,10 +15,11 @@ export type Data = {
 }
 
 export type MatchCardData = {
-    _id: string;
-    id: string;
+    _id?: string;
+    id?: string;
     image: string;
     wordImage: string;
     word: string;
     meaning: string;
+    level: Level;
 }
