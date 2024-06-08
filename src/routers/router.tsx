@@ -1,7 +1,9 @@
-import { Route, NonIndexRouteObject, Routes } from "react-router-dom";
+import { Route, NonIndexRouteObject, Routes, useNavigate } from "react-router-dom";
 import LoginPage from "../routes/login";
 import HomePage from "../routes";
 import NotFoundPage from "../routes/not-found";
+import { useMemo } from "react";
+import { observeAuth } from "../composables/authen";
 
 interface RouterObject extends NonIndexRouteObject {
     title?: string
@@ -26,6 +28,24 @@ export function Page(props: {element: React.ReactNode, title?: string}) {
 }
 
 export default function Router() {
+    const navigate = useNavigate();
+    useMemo(async () => {
+      let isObserveOnInitial = false;
+      observeAuth(async (user) => {
+        console.log('user', user)
+        if (!user) {
+          console.log(1)
+          if (!isObserveOnInitial) {
+            console.log(2)
+            navigate('/login')
+            isObserveOnInitial = true;
+          }
+          return;
+        }
+        isObserveOnInitial = true;
+      });
+    }, []);
+
     return (
         <Routes>
             {routers.map((router, index) => (
