@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, initializeFirestore, query, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, initializeFirestore, query, updateDoc, QueryDocumentSnapshot, DocumentData, orderBy, QueryConstraint, where } from 'firebase/firestore';
 import app from './firebase';
 import { Data, Level, MatchCardData } from '../model/data';
 import { converter } from '../model/converter';
@@ -50,9 +50,29 @@ async function deleteRequestFiles(id: string) {
     await deleteFile(data.wordImage);
 }
 
-export async function getAllData() {
-    const snapshot = await getDocs(query(collection(firestore, dataCollection).withConverter(converter<MatchCardData>())));
-    return snapshot.docs
+export async function getAllData(page: number, filter?: Level, limitPerPage = 10) {
+    const queryConstraint: QueryConstraint[] = [];
+
+    if (filter) {
+        queryConstraint.push(where("level", '==', filter));
+    }
+
+    queryConstraint.push(orderBy("word"));
+
+    const snapshot = await getDocs(query(
+        collection(firestore, dataCollection).withConverter(converter<MatchCardData>()),
+        ...queryConstraint,
+    ));
+    const docs: QueryDocumentSnapshot<MatchCardData, DocumentData>[] = [];
+    for (let i=0; i<snapshot.size; i++) {
+        if (i >= (page-1)*limitPerPage && docs.length < limitPerPage) {
+            docs.push(snapshot.docs[i]);
+        }
+    }
+    return {
+        data: docs,
+        total: snapshot.size,
+    }
 }
 
 export async function getData(id: string) {

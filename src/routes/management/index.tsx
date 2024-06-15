@@ -5,19 +5,25 @@ import Table from "../../components/shared/table";
 import { deleteFile, getFile, uploadFile } from "../../composables/storage";
 import { addData, deleteData, editData, getData, getAllData } from "../../composables/firestore";
 import DataManagementModal from "../../components/standalone/modal";
+import { Select } from "flowbite-react";
+
+const limitPerPage = 10;
 
 export default function ManagementPage() {
     const [openModal, setOpenModal] = useState<'add' | 'edit' | 'closed'>('closed');
     const [dataManagement, setDataManagement] = useState<MatchCardData>(initialDataManagement());
+    const [totalPages, setTotalPages] = useState(1);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [filter, setFilter] = useState<Level | ''>('');
 
     const columns = [
         {
             header: 'รูปภาพ',
-            column: (data: MatchCardData) => <img src={data.image} alt="imagez" className="w-24 h-24" />
+            column: (data: MatchCardData) => data.image.startsWith('images') ? <div className="animate-pulse w-24 h-24 bg-gray-700"></div> : <img src={data.image} alt="imagez" className="w-24 h-24" />
         },
         {
             header: 'รูปภาพคำศัพท์',
-            column: (data: MatchCardData) => <img src={data.wordImage} alt="word-imagez" className="w-24 h-24" />
+            column: (data: MatchCardData) => data.wordImage.startsWith('images') ? <div className="animate-pulse w-24 h-24 bg-gray-700"></div> : <img src={data.wordImage} alt="word-imagez" className="w-24 h-24" />
         },
         {
             header: 'คำศัพท์',
@@ -55,17 +61,25 @@ export default function ManagementPage() {
     const [data, setData] = useState<MatchCardData[]>([]);
 
     const fetchData = useCallback(async () => {
-        const requests = await getAllData()
+        const result = await getAllData(currentPage, filter || undefined, limitPerPage);
+        setTotalPages(Math.ceil(result.total/limitPerPage))
         const data: MatchCardData[] = [];
-        for (const request of requests) {
+        for (const request of result.data) {
+            const requestData = request.data();
+            requestData._id = request.id;
+            data.push({...requestData})
+        }
+        setData([...data])
+        data.length = 0;
+        for (const request of result.data) {
             const requestData = request.data();
             requestData.image = await getFile(requestData.image);
             requestData.wordImage = await getFile(requestData.wordImage);
             requestData._id = request.id;
             data.push({...requestData})
         }
-        setData(data)
-    }, [setData]);
+        setData([...data])
+    }, [setData, currentPage, filter]);
 
     function initialDataManagement(): MatchCardData {
         return {
@@ -124,16 +138,29 @@ export default function ManagementPage() {
 
     useEffect(() => {
         fetchData();
-    }, [fetchData])
+    }, [fetchData, currentPage, filter])
 
     return (
         <>
             <Topbar />
             <div className="p-4">
-                <button onClick={() => {setDataManagement(initialDataManagement()); setOpenModal('add')}} className="w-full text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-2 py-1 text-center">Add</button>
+                <div className="flex items-center justify-between gap-4 mb-2">
+                    <Select className="min-w-48" value={filter} onChange={e => {setCurrentPage(1); setFilter(e.target.value as Level || '');}}>
+                        <option value="">ทุกระดับ</option>
+                        <option value={Level.Easy}>ง่าย</option>
+                        <option value={Level.Medium}>ปานกลาง</option>
+                        <option value={Level.Hard}>ยาก</option>
+                    </Select>
+                    <button onClick={() => {setDataManagement(initialDataManagement()); setOpenModal('add')}} className="w-fit text-white h-[42px] bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-2 py-1 text-center">เพิ่มคำศัพท์</button>
+                </div>
                 <Table
                     columns={columns}
                     data={data}
+                    pagination={{
+                        totalPages,
+                        currentPage,
+                        onPageChange: setCurrentPage,
+                    }}
                 />
             </div>
 
